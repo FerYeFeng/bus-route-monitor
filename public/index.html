@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>公交线路监控</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <div><strong>公交线路监控</strong><span>全国信息源巡检</span></div>
+    </div>
+    <div class="header-actions">
+      <span class="service-state"><i id="state-dot"></i><span id="service-label">连接中</span></span>
+      <button id="refresh" class="icon-button" type="button" title="刷新数据" aria-label="刷新数据">↻</button>
+      <button id="login" class="login-button" type="button"><span aria-hidden="true">◎</span>微博登录</button>
+      <button id="check" class="primary" type="button"><span aria-hidden="true">▶</span>立即检查</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="overview" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">MONITOR / LIVE STATUS</p>
+        <h1 id="page-title">线路动态总览</h1>
+        <p id="checked-at" class="muted">正在读取最近一次检查...</p>
+      </div>
+      <div class="metrics">
+        <div><span>监控来源</span><strong id="total">--</strong></div>
+        <div><span>本次更新</span><strong id="updates">--</strong></div>
+        <div><span>运行正常</span><strong id="healthy">--</strong></div>
+        <div><span>需要处理</span><strong id="failed">--</strong></div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="toolbar">
+        <div class="tabs" role="tablist" aria-label="状态筛选">
+          <button class="tab active" data-view="sources" data-filter="all" role="tab">全部 <span id="count-all">0</span></button>
+          <button class="tab" data-filter="changed" role="tab">有更新 <span id="count-changed">0</span></button>
+          <button class="tab" data-filter="error" role="tab">异常 <span id="count-error">0</span></button>
+          <button class="tab" data-view="content" role="tab">动态内容 <span id="count-content">0</span></button>
+        </div>
+        <div class="toolbar-right"><select id="sort" aria-label="内容排序" hidden><option value="desc">时间：最新优先</option><option value="asc">时间：最早优先</option></select><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索城市或来源" autocomplete="off"></label></div>
+      </div>
+
+      <div id="running-bar" class="running-bar" hidden><span class="spinner"></span><div><strong>正在巡检全部来源</strong><span id="running-copy">新的结果将在检查结束后自动显示</span></div></div>
+      <div id="source-list" class="source-list" aria-live="polite"></div>
+      <div id="content-list" class="content-list" aria-live="polite" hidden></div>
+      <div id="empty" class="empty" hidden><strong id="empty-title">没有符合条件的来源</strong><span id="empty-copy">更换筛选条件或搜索词</span></div>
+    </section>
+  </main>
+
+  <footer><span>自动检查间隔 <b id="interval">--</b> 分钟</span><span>页面每 5 秒同步运行状态</span></footer>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

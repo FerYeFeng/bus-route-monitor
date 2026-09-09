@@ -1,0 +1,17 @@
+{
+  "name": "bus-route-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "login": "node src/cli.js login",
+    "import-cookies": "node src/import-cookies.js",
+    "check": "node src/cli.js check",
+    "watch": "node src/cli.js watch",
+    "serve": "node src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "playwright": "^1.55.0"
+  }
+}

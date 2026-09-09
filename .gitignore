@@ -1,0 +1,7 @@
+node_modules/
+work/browser-profile/
+work/state/
+outputs/*.json
+outputs/*.md
+!outputs/.gitkeep
+
