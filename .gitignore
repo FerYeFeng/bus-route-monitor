@@ -3,5 +3,6 @@ work/browser-profile/
 work/state/
 outputs/*.json
 outputs/*.md
+outputs/*.zip
+work/*.bat
 !outputs/.gitkeep
-
