@@ -4,17 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
-  <title>公交线路监控</title>
+  <title>微博公交监控</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-      <div><strong>公交线路监控</strong><span>全国信息源巡检</span></div>
+      <div><strong>微博公交监控</strong><span>全国信息源巡检</span></div>
     </div>
     <div class="header-actions">
       <span class="service-state"><i id="state-dot"></i><span id="service-label">连接中</span></span>
+      <a class="competitor-link" href="http://ferline.qicp.vip:9092" target="_blank" rel="noreferrer" title="打开竞品APP公告监控"><span aria-hidden="true">↗</span><span class="competitor-label">竞品APP公告监控</span></a>
       <button id="refresh" class="icon-button" type="button" title="刷新数据" aria-label="刷新数据">↻</button>
       <button id="login" class="login-button" type="button"><span aria-hidden="true">◎</span>微博登录</button>
       <button id="check" class="primary" type="button"><span aria-hidden="true">▶</span>立即检查</button>
@@ -25,7 +26,7 @@
     <section class="overview" aria-labelledby="page-title">
       <div>
         <p class="eyebrow">MONITOR / LIVE STATUS</p>
-        <h1 id="page-title">线路动态总览</h1>
+        <h1 id="page-title">微博公交监控</h1>
         <p id="checked-at" class="muted">正在读取最近一次检查...</p>
       </div>
       <div class="metrics">

@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
 import http from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +12,11 @@ const REPORT = path.join(ROOT, 'outputs', 'latest.json');
 const HISTORY = path.join(ROOT, 'work', 'state', 'history.json');
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 9093);
-const INTERVAL_MINUTES = Math.max(1, Number(process.env.CHECK_INTERVAL_MINUTES || 3));
+const INTERVAL_MINUTES = Math.max(1, Number(process.env.CHECK_INTERVAL_MINUTES || 10));
+const START_DELAY_MINUTES = Math.max(0, Number(process.env.CHECK_START_DELAY_MINUTES || 5));
+const CHECK_CONCURRENCY = Math.max(1, Math.min(4, Number(process.env.CHECK_CONCURRENCY || 1)));
+const SOURCE_COOLDOWN_MS = Math.max(0, Math.min(10000, Number(process.env.SOURCE_COOLDOWN_MS || 1000)));
+const LOOKBACK_DAYS = Math.max(1, Math.min(30, Number(process.env.LOOKBACK_DAYS || 5)));
 let running = false;
 let loginRunning = false;
 let startedAt = null;
@@ -38,7 +43,7 @@ function runCheck() {
   running = true;
   startedAt = new Date().toISOString();
   logTail = [];
-  const child = spawn(process.execPath, [path.join(ROOT, 'src', 'cli.js'), 'check', '--concurrency', '6'], {
+  const child = spawn(process.execPath, [path.join(ROOT, 'src', 'cli.js'), 'check', '--concurrency', String(CHECK_CONCURRENCY), '--source-delay-ms', String(SOURCE_COOLDOWN_MS), '--days', String(LOOKBACK_DAYS)], {
     cwd: ROOT,
     windowsHide: true,
     stdio: ['ignore', 'pipe', 'pipe']
@@ -90,7 +95,7 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (req.method === 'GET' && url.pathname === '/api/status') {
-      return json(res, 200, { running, loginRunning, startedAt, lastExit, intervalMinutes: INTERVAL_MINUTES, logTail, report: await readReport(), history: await readHistory() });
+      return json(res, 200, { running, loginRunning, startedAt, lastExit, intervalMinutes: INTERVAL_MINUTES, startDelayMinutes: START_DELAY_MINUTES, concurrency: CHECK_CONCURRENCY, sourceCooldownMs: SOURCE_COOLDOWN_MS, lookbackDays: LOOKBACK_DAYS, logTail, report: await readReport(), history: await readHistory() });
     }
     if (req.method === 'POST' && url.pathname === '/api/check') {
       const accepted = runCheck();
@@ -108,9 +113,23 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, HOST, () => {
-  console.log(`公交监控面板：http://localhost:${PORT}`);
-  console.log(`监听：${HOST}:${PORT}；自动检查间隔：${INTERVAL_MINUTES} 分钟`);
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`端口 ${PORT} 已被占用。监控服务可能已经运行：http://localhost:${PORT}`);
+  } else {
+    console.error(`监控服务启动失败：${error.message}`);
+  }
+  process.exitCode = 1;
 });
 
-setInterval(runCheck, INTERVAL_MINUTES * 60_000).unref();
+server.listen(PORT, HOST, () => {
+  try { os.setPriority(0, os.constants.priority.PRIORITY_BELOW_NORMAL); } catch {}
+  console.log(`微博公交监控：http://localhost:${PORT}`);
+  console.log(`监听：${HOST}:${PORT}；首次自动检查延迟：${START_DELAY_MINUTES} 分钟；之后每 ${INTERVAL_MINUTES} 分钟检查；并发：${CHECK_CONCURRENCY}；来源冷却：${SOURCE_COOLDOWN_MS}ms`);
+});
+
+const firstCheck = setTimeout(() => {
+  runCheck();
+  setInterval(runCheck, INTERVAL_MINUTES * 60_000).unref();
+}, START_DELAY_MINUTES * 60_000);
+firstCheck.unref();

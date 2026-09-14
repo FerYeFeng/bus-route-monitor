@@ -31,8 +31,10 @@ button { cursor: pointer; }
 .service-state i { width: 8px; height: 8px; border-radius: 50%; background: #efb841; }
 .service-state i.ok { background: #56c596; }
 .service-state i.bad { background: #e56a61; }
-.icon-button, .primary, .login-button { height: 36px; border: 1px solid #56706c; color: white; background: transparent; border-radius: 4px; }
+.icon-button, .primary, .login-button, .competitor-link { height: 36px; border: 1px solid #56706c; color: white; background: transparent; border-radius: 4px; }
 .icon-button { width: 36px; font-size: 20px; }
+.competitor-link { padding: 0 12px; display: flex; align-items: center; gap: 6px; color: #e9f0ee; text-decoration: none; white-space: nowrap; }
+.competitor-link:hover { border-color: #efb841; color: #fff; }
 .primary { padding: 0 14px; display: flex; align-items: center; gap: 7px; background: #eeb63d; border-color: #eeb63d; color: #18221f; font-weight: 650; }
 .login-button { padding: 0 12px; display: flex; align-items: center; gap: 6px; }
 .primary:disabled { cursor: wait; opacity: .65; }
@@ -125,6 +127,11 @@ footer { max-width: 1320px; margin: 0 auto; padding: 0 24px 25px; display: flex;
   .detail { grid-column: 1 / -1; margin-top: 10px; }
   footer { padding: 0 14px 20px; flex-direction: column; gap: 4px; }
   .content-item { grid-template-columns: 1fr; gap: 7px; }
+}
+
+@media (max-width: 700px) {
+  .competitor-link { width: 38px; padding: 0; justify-content: center; }
+  .competitor-label { display: none; }
 }
 
 @media (max-width: 520px) {

@@ -6,7 +6,7 @@ function escapeHtml(value = '') {
 }
 
 function formatTime(value) {
-  if (!value) return '尚未完成检查';
+  if (!value) return '时间未知';
   return new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium', timeStyle: 'medium', hour12: false }).format(new Date(value));
 }
 
@@ -23,6 +23,7 @@ function recentDay(item) {
   if (age === 0) return { age, label: '今天', className: 'today' };
   if (age === 1) return { age, label: '昨天', className: 'yesterday' };
   if (age === 2) return { age, label: '前天', className: 'day-before' };
+  if (age >= 3 && age <= 4) return { age, label: `${age} 天前`, className: 'earlier' };
   return null;
 }
 
@@ -92,7 +93,7 @@ function render(data) {
     return `${heading}<article class="content-item ${day.className}"><div class="content-meta"><time>${formatTime(item.publishedAt)}</time><a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(item.name)}</a></div><p>${escapeHtml(item.text)}</p></article>`;
   }).join('');
   $('#empty-title').textContent = state.view === 'content' ? '暂时没有新增动态' : '没有符合条件的来源';
-  $('#empty-copy').textContent = state.view === 'content' ? '这里只显示今天、昨天和前天检测到的线路内容' : '更换筛选条件或搜索词';
+  $('#empty-copy').textContent = state.view === 'content' ? '这里只显示发布时间处于近 5 天的线路内容' : '更换筛选条件或搜索词';
   $('#empty').hidden = state.view === 'sources' ? filtered.length > 0 : content.length > 0;
 }
 

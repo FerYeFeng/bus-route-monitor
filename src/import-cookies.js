@@ -1,6 +1,7 @@
 import path from 'node:path';
 import process from 'node:process';
 import { chromium } from 'playwright';
+import { isWeibo, loginRequired, readJson } from './monitor.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const PROFILE = path.join(ROOT, 'work', 'browser-profile');
@@ -29,11 +30,13 @@ const context = await chromium.launchPersistentContext(PROFILE, {
 try {
   await context.addCookies(cookies);
   const page = context.pages()[0] ?? await context.newPage();
-  await page.goto('https://weibo.com/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  const sources = await readJson(path.join(ROOT, 'sources.json'), []);
+  const verifyUrl = sources.find((source) => source.enabled !== false && source.url && isWeibo(source.url))?.url || 'https://weibo.com/';
+  await page.goto(verifyUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(3000);
   const text = await page.locator('body').innerText().catch(() => '');
-  const loggedIn = !/扫码登录|短信登录|账号登录|请先登录/u.test(text);
-  console.log(JSON.stringify({ imported: cookies.length, loggedIn }));
+  const loggedIn = !loginRequired(page.url(), text);
+  console.log(JSON.stringify({ imported: cookies.length, loggedIn, verifiedOnProfile: verifyUrl !== 'https://weibo.com/' }));
 } finally {
   await context.close();
 }
